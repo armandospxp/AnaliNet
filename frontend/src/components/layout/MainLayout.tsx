@@ -31,9 +31,11 @@ const drawerWidth = 240;
 
 interface MainLayoutProps {
   children: React.ReactNode;
+  title?: string;
+  subtitle?: string;
 }
 
-export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, title, subtitle }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { user, logout } = useAuth();
@@ -49,6 +51,123 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const drawer = (
+    <div>
+      <List>
+        <ListItem button onClick={() => navigate('/dashboard')}>
+          <ListItemIcon>
+            <Dashboard />
+          </ListItemIcon>
+          <ListItemText primary="Dashboard" />
+        </ListItem>
+        <ListItem button onClick={() => navigate('/orders')}>
+          <ListItemIcon>
+            <Assignment />
+          </ListItemIcon>
+          <ListItemText primary="Órdenes" />
+        </ListItem>
+        <ListItem button onClick={() => navigate('/tests')}>
+          <ListItemIcon>
+            <Science />
+          </ListItemIcon>
+          <ListItemText primary="Análisis" />
+        </ListItem>
+        <ListItem button onClick={() => navigate('/reports')}>
+          <ListItemIcon>
+            <Assessment />
+          </ListItemIcon>
+          <ListItemText primary="Reportes" />
+        </ListItem>
+      </List>
+    </div>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed" sx={{ zIndex: (theme: any) => theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            {title || 'AnaliNet'}
+          </Typography>
+          {subtitle && (
+            <Typography variant="subtitle1" sx={{ mr: 2 }}>
+              {subtitle}
+            </Typography>
+          )}
+          <IconButton color="inherit" onClick={handleMenuOpen}>
+            <Avatar>{user?.username?.charAt(0)?.toUpperCase()}</Avatar>
+          </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <ExitToApp fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Cerrar sesión" />
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
+        ModalProps={{
+          keepMounted: true,
+        }}
+        sx={{
+          display: { xs: 'block', sm: 'none' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+        }}
+      >
+        {drawer}
+      </Drawer>
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', sm: 'block' },
+          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+        }}
+        open
+      >
+        {drawer}
+      </Drawer>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          mt: 8,
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
+  );
+};
+
+export default MainLayout;
     setAnchorEl(null);
   };
 
